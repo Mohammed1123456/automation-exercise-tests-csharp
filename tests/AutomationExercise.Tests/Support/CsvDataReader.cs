@@ -25,5 +25,3 @@ public static class CsvDataReader
         return csv.GetRecords<T>().ToList();
     }
 }
-
-
