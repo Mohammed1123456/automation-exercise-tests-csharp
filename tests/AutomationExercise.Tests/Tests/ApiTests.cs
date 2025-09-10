@@ -1,5 +1,5 @@
 using AutomationExercise.Tests.Api;
-using Bogus;
+using AutomationExercise.Tests.Support;
 using FluentAssertions;
 using RestSharp;
 
@@ -7,39 +7,91 @@ namespace AutomationExercise.Tests.Tests;
 
 public class ApiTests
 {
-    [Test]
-    [Category("api")]
-    public async Task CreateAccount_Should_Return_Success()
+    public static IEnumerable<TestCaseData> ApiTestCases()
     {
-        var faker = new Faker();
+        var testData = CsvDataReader.Read<ApiTestData>("TestData/api_test_data.csv");
+        foreach (var data in testData)
+        {
+            yield return new TestCaseData(data)
+                .SetName($"CreateAccount_API_{data.Email}_{data.ExpectedStatus}");
+        }
+    }
+
+    [Test]
+    [TestCaseSource(nameof(ApiTestCases))]
+    [Category("api")]
+    public async Task CreateAccount_With_Data_From_Csv_Should_Return_Expected_Status(ApiTestData testData)
+    {
+        // Arrange - Prepare test data from CSV
         var form = new Dictionary<string, string>
         {
-            ["name"] = faker.Name.FullName(),
-            ["email"] = $"{faker.Internet.UserName().ToLower()}.{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}@example.com",
-            ["password"] = faker.Internet.Password(12),
+            ["name"] = testData.Name,
+            ["email"] = testData.Email,
+            ["password"] = testData.Password,
+            ["title"] = testData.Title,
+            ["birth_date"] = testData.BirthDate,
+            ["birth_month"] = testData.BirthMonth,
+            ["birth_year"] = testData.BirthYear,
+            ["firstname"] = testData.FirstName,
+            ["lastname"] = testData.LastName,
+            ["company"] = testData.Company,
+            ["address1"] = testData.Address1,
+            ["address2"] = testData.Address2,
+            ["country"] = testData.Country,
+            ["zipcode"] = testData.Zipcode,
+            ["state"] = testData.State,
+            ["city"] = testData.City,
+            ["mobile_number"] = testData.MobileNumber
+        };
+
+        // Act - Call API
+        var api = new ApiClient();
+        TestContext.Progress.WriteLine($"--- API createAccount call for {testData.Email} ---");
+        RestResponse response = await api.CreateAccountAsync(form, s => TestContext.Progress.WriteLine(s));
+
+        // Assert - Verify expected status code and response
+        response.StatusCode.Should().BeOneOf(System.Net.HttpStatusCode.OK, System.Net.HttpStatusCode.Created);
+        response.Content.Should().NotBeNullOrWhiteSpace();
+        response.Content!.Should().Contain($"\"responseCode\": {testData.ExpectedStatus}");
+        response.Content!.ToLower().Should().MatchRegex("user created|success");
+    }
+
+    [Test]
+    [Category("api")]
+    public async Task CreateAccount_With_Generated_Data_Should_Return_Success()
+    {
+        // Arrange - Prepare test data using factory
+        var userData = TestDataFactory.CreateValidUser();
+        var form = new Dictionary<string, string>
+        {
+            ["name"] = userData.FullName,
+            ["email"] = userData.Email,
+            ["password"] = userData.Password,
             ["title"] = "Mr",
             ["birth_date"] = "1",
             ["birth_month"] = "1",
             ["birth_year"] = "2000",
-            ["firstname"] = faker.Name.FirstName(),
-            ["lastname"] = faker.Name.LastName(),
-            ["company"] = faker.Company.CompanyName(),
-            ["address1"] = faker.Address.StreetAddress(),
+            ["firstname"] = userData.FirstName,
+            ["lastname"] = userData.LastName,
+            ["company"] = "Test Company",
+            ["address1"] = userData.Address,
             ["address2"] = "",
             ["country"] = "Canada",
-            ["zipcode"] = faker.Address.ZipCode(),
-            ["state"] = faker.Address.State(),
-            ["city"] = faker.Address.City(),
-            ["mobile_number"] = faker.Phone.PhoneNumber()
+            ["zipcode"] = userData.ZipCode,
+            ["state"] = userData.State,
+            ["city"] = userData.City,
+            ["mobile_number"] = userData.MobileNumber
         };
 
+        // Act - Call API
         var api = new ApiClient();
-        TestContext.Progress.WriteLine("--- API createAccount call ---");
+        TestContext.Progress.WriteLine($"--- API createAccount call for generated user {userData.Email} ---");
         RestResponse response = await api.CreateAccountAsync(form, s => TestContext.Progress.WriteLine(s));
 
-        // API returns 201 with message "User created!" on success per api_list
+        // Assert - Verify success response
         response.StatusCode.Should().BeOneOf(System.Net.HttpStatusCode.OK, System.Net.HttpStatusCode.Created);
         response.Content.Should().NotBeNullOrWhiteSpace();
+        response.Content!.Should().Contain("\"responseCode\": 201");
         response.Content!.ToLower().Should().MatchRegex("user created|success");
     }
 }

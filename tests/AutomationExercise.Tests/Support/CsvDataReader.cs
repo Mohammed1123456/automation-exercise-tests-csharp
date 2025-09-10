@@ -18,6 +18,10 @@ public static class CsvDataReader
             BadDataFound = null
         };
         using var csv = new CsvReader(reader, config);
+        
+        // Register the mapping if it exists
+        csv.Context.RegisterClassMap<ApiTestDataMap>();
+        
         return csv.GetRecords<T>().ToList();
     }
 }

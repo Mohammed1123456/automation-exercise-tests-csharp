@@ -1,0 +1,77 @@
+name: Nightly Test Suite
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Run daily at 2 AM UTC
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  nightly-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+          
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build solution
+      run: dotnet build --no-restore --configuration Release
+      
+    - name: Run full test suite
+      run: |
+        dotnet test --no-build --configuration Release --logger "trx;LogFileName=nightly-test-results.trx" --logger "html;LogFileName=nightly-test-results.html" --results-directory ./TestResults --collect:"XPlat Code Coverage"
+      env:
+        HEADLESS: 1
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: nightly-test-results
+        path: |
+          TestResults/
+          !TestResults/**/*.log
+        retention-days: 90
+        
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Nightly Test Results
+        path: TestResults/*.trx
+        reporter: dotnet-trx
+        fail-on-error: false
+        
+    - name: Generate coverage report
+      run: |
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+        reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:"TestResults/CoverageReport" -reporttypes:"Html"
+        
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: nightly-coverage-report
+        path: TestResults/CoverageReport/
+        retention-days: 90
+        
+    - name: Send notification on failure
+      if: failure()
+      run: |
+        echo "Nightly tests failed. Check the test results in the artifacts section."
+        # Add notification logic here (Slack, Teams, email, etc.)

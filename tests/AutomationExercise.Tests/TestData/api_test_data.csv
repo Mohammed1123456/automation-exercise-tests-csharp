@@ -1,0 +1,4 @@
+name,email,password,title,birth_date,birth_month,birth_year,firstname,lastname,company,address1,address2,country,zipcode,state,city,mobile_number,expected_status
+John Doe,john.doe.1757525000000@example.com,password123,Mr,1,1,1990,John,Doe,Test Company,123 Main St,,USA,12345,CA,Los Angeles,555-1234,201
+Jane Smith,jane.smith.1757525000001@example.com,password456,Ms,15,6,1985,Jane,Smith,ABC Corp,456 Oak Ave,,Canada,H1A 1A1,ON,Toronto,555-5678,201
+Bob Johnson,bob.johnson.1757525000002@example.com,password789,Mr,10,12,1992,Bob,Johnson,XYZ Ltd,789 Pine Rd,,UK,SW1A 1AA,England,London,555-9012,201

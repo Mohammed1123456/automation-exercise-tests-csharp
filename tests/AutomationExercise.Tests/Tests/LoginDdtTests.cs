@@ -20,17 +20,7 @@ public class LoginDdtTests : BaseTest
         }
 
         // Generate a valid account dynamically for a success case
-        var faker = new Faker();
-        var fullName = faker.Name.FullName();
-        var email = $"{faker.Internet.UserName().ToLower()}.{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}@example.com";
-        var password = faker.Internet.Password(12);
-        var firstName = faker.Name.FirstName();
-        var lastName = faker.Name.LastName();
-        var address = faker.Address.StreetAddress();
-        var state = faker.Address.State();
-        var city = faker.Address.City();
-        var zip = faker.Address.ZipCode();
-        var mobile = faker.Phone.PhoneNumber();
+        var userData = TestDataFactory.CreateValidUser();
 
         // Create account
         using var driver = DriverFactory.CreateChromeDriver(TestSettings.Headless);
@@ -39,12 +29,13 @@ public class LoginDdtTests : BaseTest
         home.IsLoaded();
         home.ClickSignupLogin();
         var signup = new SignupLoginPage(driver);
-        signup.StartSignup(fullName, email);
-        signup.FillAccountInformation(password, firstName, lastName, address, state, city, zip, mobile);
+        signup.StartSignup(userData.FullName, userData.Email);
+        signup.FillAccountInformation(userData.Password, userData.FirstName, userData.LastName, 
+            userData.Address, userData.State, userData.City, userData.ZipCode, userData.MobileNumber);
         signup.IsAccountCreated().Should().BeTrue();
         signup.ContinueAfterCreation();
 
-        yield return new TestCaseData(email, password, true).SetName("Login_Valid_Created_Success");
+        yield return new TestCaseData(userData.Email, userData.Password, true).SetName("Login_Valid_Created_Success");
     }
 
     [Test, TestCaseSource(nameof(LoginCases))]
