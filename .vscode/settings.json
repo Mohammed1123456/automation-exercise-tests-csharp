@@ -1,0 +1,11 @@
+{
+  "dotnet.defaultSolution": "/Users/mohamedmedhat/IdeaProjects/AutomationAssessment/AutomationAssessment.sln",
+  "dotnet.server.useOmnisharp": false,
+  "dotnet.testExplorer.showExpand": true,
+  "dotnet.testExplorer.testProjectPath": "tests/AutomationExercise.Tests/AutomationExercise.Tests.csproj",
+  "terminal.integrated.env.osx": {
+    "HEADLESS": "1",
+    "PATH": "/opt/homebrew/bin:/usr/local/bin:${env:PATH}"
+  }
+}
+

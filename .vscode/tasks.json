@@ -1,0 +1,53 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dotnet: test (headless)",
+      "type": "shell",
+      "options": {
+        "cwd": "/Users/mohamedmedhat/IdeaProjects/AutomationAssessment",
+        "env": { "HEADLESS": "1" }
+      },
+      "command": "dotnet test -v minimal",
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "test: headless + HTML report",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "dotnet: test (headless)",
+        "generate: HTML report"
+      ]
+    },
+    {
+      "label": "test: api only + HTML report",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "dotnet: test (api only)",
+        "generate: HTML report"
+      ]
+    },
+    {
+      "label": "dotnet: test (api only)",
+      "type": "shell",
+      "options": { "cwd": "/Users/mohamedmedhat/IdeaProjects/AutomationAssessment" },
+      "command": "dotnet test -v minimal -- NUnit.Where=cat==api",
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "dotnet: test (headed)",
+      "type": "shell",
+      "options": { "cwd": "/Users/mohamedmedhat/IdeaProjects/AutomationAssessment" },
+      "command": "dotnet test -v minimal",
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "generate: HTML report",
+      "type": "shell",
+      "options": { "cwd": "/Users/mohamedmedhat/IdeaProjects/AutomationAssessment" },
+      "command": "dotnet test --logger \"html;LogFileName=TestResults.html\" --results-directory ./TestResults && open ./TestResults/TestResults.html",
+      "problemMatcher": []
+    }
+  ]
+}
+

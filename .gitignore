@@ -1,0 +1,7 @@
+bin/
+obj/
+TestResults/
+.allure*/
+allure-*/
+.vscode/*.log
+**/.DS_Store

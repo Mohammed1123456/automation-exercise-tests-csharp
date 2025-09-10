@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Test (headless)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "dotnet: test (headless)",
+      "program": "/usr/bin/env",
+      "args": ["bash", "-lc", "cd /Users/mohamedmedhat/IdeaProjects/AutomationAssessment && HEADLESS=1 dotnet test -v minimal"],
+      "cwd": "/Users/mohamedmedhat/IdeaProjects/AutomationAssessment",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": ".NET Test (headed)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "dotnet: test (headed)",
+      "program": "/usr/bin/env",
+      "args": ["bash", "-lc", "cd /Users/mohamedmedhat/IdeaProjects/AutomationAssessment && dotnet test -v minimal"],
+      "cwd": "/Users/mohamedmedhat/IdeaProjects/AutomationAssessment",
+      "console": "integratedTerminal"
+    }
+  ]
+}
+
