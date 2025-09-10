@@ -9,11 +9,34 @@ public class ApiTests
 {
     public static IEnumerable<TestCaseData> ApiTestCases()
     {
-        var testData = CsvDataReader.Read<ApiTestData>("TestData/api_test_data.csv");
-        foreach (var data in testData)
+        // Generate fresh test data for each run to avoid "email already exists" errors
+        for (int i = 0; i < 3; i++)
         {
-            yield return new TestCaseData(data)
-                .SetName($"CreateAccount_API_{data.Email}_{data.ExpectedStatus}");
+            var userData = TestDataFactory.CreateValidUser();
+            var testData = new ApiTestData
+            {
+                Name = userData.FullName,
+                Email = userData.Email,
+                Password = userData.Password,
+                Title = "Mr",
+                BirthDate = "1",
+                BirthMonth = "1",
+                BirthYear = "2000",
+                FirstName = userData.FirstName,
+                LastName = userData.LastName,
+                Company = "Test Company",
+                Address1 = userData.Address,
+                Address2 = "",
+                Country = "Canada",
+                Zipcode = userData.ZipCode,
+                State = userData.State,
+                City = userData.City,
+                MobileNumber = userData.MobileNumber,
+                ExpectedStatus = 201
+            };
+            
+            yield return new TestCaseData(testData)
+                .SetName($"CreateAccount_API_Generated_{i + 1}_{testData.ExpectedStatus}");
         }
     }
 

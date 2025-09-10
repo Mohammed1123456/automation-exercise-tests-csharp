@@ -1,4 +1,4 @@
-name: Simple Test Pipeline
+name: Basic Test Pipeline
 
 on:
   push:
@@ -34,28 +34,9 @@ jobs:
     - name: Build solution
       run: dotnet build --no-restore --configuration Release
       
-    - name: Run UI Tests
+    - name: Run All Tests
       run: |
-        dotnet test --no-build --configuration Release --logger "trx;LogFileName=ui-test-results.trx" --results-directory ./TestResults -- NUnit.Where="cat==ui" || echo "UI tests completed with some failures"
-      env:
-        HEADLESS: 1
-      continue-on-error: true
-        
-    - name: Run API Tests
-      run: |
-        dotnet test --no-build --configuration Release --logger "trx;LogFileName=api-test-results.trx" --results-directory ./TestResults -- NUnit.Where="cat==api" || echo "API tests completed with some failures"
-      continue-on-error: true
-        
-    - name: Run Smoke Tests
-      run: |
-        dotnet test --no-build --configuration Release --logger "trx;LogFileName=smoke-test-results.trx" --results-directory ./TestResults -- NUnit.Where="cat==smoke" || echo "Smoke tests completed with some failures"
-      env:
-        HEADLESS: 1
-      continue-on-error: true
-        
-    - name: Run Regression Tests
-      run: |
-        dotnet test --no-build --configuration Release --logger "trx;LogFileName=regression-test-results.trx" --results-directory ./TestResults -- NUnit.Where="cat==regression" || echo "Regression tests completed with some failures"
+        dotnet test --no-build --configuration Release --logger "trx;LogFileName=test-results.trx" --results-directory ./TestResults
       env:
         HEADLESS: 1
       continue-on-error: true
@@ -73,12 +54,13 @@ jobs:
       run: |
         echo "## Test Execution Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "✅ All test categories executed successfully!" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Test execution completed!" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Test Categories:" >> $GITHUB_STEP_SUMMARY
+        echo "### Test Categories Included:" >> $GITHUB_STEP_SUMMARY
         echo "- **UI Tests**: Selenium WebDriver tests" >> $GITHUB_STEP_SUMMARY
         echo "- **API Tests**: RestSharp API tests" >> $GITHUB_STEP_SUMMARY
         echo "- **Smoke Tests**: Critical path verification" >> $GITHUB_STEP_SUMMARY
         echo "- **Regression Tests**: Full feature testing" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "📊 Test results are available in the artifacts section." >> $GITHUB_STEP_SUMMARY
+        echo "🔍 Check the test logs for detailed execution information." >> $GITHUB_STEP_SUMMARY
